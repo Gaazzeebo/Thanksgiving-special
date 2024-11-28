@@ -12,7 +12,7 @@ resizeCanvas();
 window.addEventListener('resize', resizeCanvas);
 
 // Leaf Particles
-const leafCount = 50;
+const leafCount = 70;
 const leaves = [];
 const leafImages = [];
 
@@ -51,9 +51,9 @@ class Leaf {
     this.x += Math.sin(this.y * this.swingSpeed) * this.swing * 0.005;
     this.angle += this.spin;
 
-    // Interaction with mouse
-    const dx = this.x - mouseX;
-    const dy = this.y - mouseY;
+    // Interaction with pointer
+    const dx = this.x - pointerX;
+    const dy = this.y - pointerY;
     const distance = Math.sqrt(dx * dx + dy * dy);
     if (distance < 100) {
       this.x += dx / distance * 5;
@@ -62,6 +62,7 @@ class Leaf {
 
     if (this.y > height) {
       this.reset();
+      this.y = -this.size;
     }
   }
 
@@ -81,14 +82,23 @@ class Leaf {
   }
 }
 
-// Mouse Interaction
-let mouseX = width / 2;
-let mouseY = height / 2;
+// Pointer Interaction
+let pointerX = width / 2;
+let pointerY = height / 2;
 
-window.addEventListener('mousemove', function(e) {
-  mouseX = e.clientX;
-  mouseY = e.clientY;
+// Mouse Interaction for Desktop
+window.addEventListener('mousemove', function (e) {
+  pointerX = e.clientX;
+  pointerY = e.clientY;
 });
+
+// Touch Interaction for Mobile
+window.addEventListener('touchmove', function (e) {
+  if (e.touches.length > 0) {
+    pointerX = e.touches[0].clientX;
+    pointerY = e.touches[0].clientY;
+  }
+}, { passive: false });
 
 // Initialize Leaves After Images Load
 Promise.all(leafImages.map(img => new Promise((resolve) => {
@@ -109,60 +119,3 @@ function animate() {
   });
   requestAnimationFrame(animate);
 }
-
-// Button Events
-document.getElementById('exploreButton').addEventListener('click', () => {
-  window.open('https://www.gaazzeebo.com', '_blank');
-});
-
-// Music Control
-const music = document.getElementById('backgroundMusic');
-const musicControl = document.getElementById('musicControl');
-let musicPlaying = false;
-
-musicControl.addEventListener('click', () => {
-  if (musicPlaying) {
-    music.pause();
-    musicControl.textContent = 'Play Music';
-  } else {
-    music.play();
-    musicControl.textContent = 'Pause Music';
-  }
-  musicPlaying = !musicPlaying;
-});
-
-// Countdown Timer
-function updateCountdown() {
-  const countdownElement = document.getElementById('countdown');
-  const thanksgivingDate = new Date('November 28, 2024 00:00:00'); // Update the date accordingly
-  const now = new Date();
-  const diff = thanksgivingDate - now;
-
-  if (diff <= 0) {
-    countdownElement.textContent = "Happy Thanksgiving!";
-    clearInterval(countdownInterval);
-  } else {
-    const days = Math.floor(diff / (1000 * 60 * 60 * 24));
-    const hours = Math.floor((diff / (1000 * 60 * 60)) % 24);
-    const minutes = Math.floor((diff / (1000 * 60)) % 60);
-    const seconds = Math.floor((diff / 1000) % 60);
-    countdownElement.textContent = `Time until Thanksgiving: ${days}d ${hours}h ${minutes}m ${seconds}s`;
-  }
-}
-
-const countdownInterval = setInterval(updateCountdown, 1000);
-updateCountdown();
-
-// Social Sharing
-document.getElementById('shareFacebook').addEventListener('click', () => {
-  const url = encodeURIComponent(window.location.href);
-  const facebookShareUrl = `https://www.facebook.com/sharer/sharer.php?u=${url}`;
-  window.open(facebookShareUrl, '_blank');
-});
-
-document.getElementById('shareTwitter').addEventListener('click', () => {
-  const text = encodeURIComponent('Check out this amazing Thanksgiving greeting from Gaazzeebo!');
-  const url = encodeURIComponent(window.location.href);
-  const twitterShareUrl = `https://twitter.com/intent/tweet?text=${text}&url=${url}`;
-  window.open(twitterShareUrl, '_blank');
-});
